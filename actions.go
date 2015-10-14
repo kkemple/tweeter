@@ -3,14 +3,19 @@ package main
 import (
   "github.com/ChimeraCoder/anaconda"
   "github.com/codegangsta/cli"
+  "github.com/kardianos/osext"
   "github.com/peterh/liner"
+  "github.com/ttacon/chalk"
   "gopkg.in/yaml.v2"
 
   "io/ioutil"
   "os"
+  "path"
 )
 
-const CREDS_FILE = ".twittercreds.yml"
+var folderName, err = osext.ExecutableFolder()
+var INSTALL_PATH = path.Join(folderName, "../src/github.com/kkemple/tweeter")
+var CREDS_FILE = path.Join(INSTALL_PATH, ".twittercreds.yml")
 
 type TwitterCreds struct {
   ConsumerKey string `yaml:"consumer_key"`
@@ -23,12 +28,12 @@ var TweetAction = func(c *cli.Context) {
   var twitterCreds TwitterCreds
 
   if len(c.Args()) == 0 {
-    println("You must provide a tweet")
+    println(chalk.Magenta.Color("You must provide a tweet"))
     return
   }
 
   if len(c.Args()) > 1 {
-    println("tweeter only takes one argument")
+    println(chalk.Magenta.Color("Tweeter only takes one argument"))
     return
   }
 
@@ -51,7 +56,7 @@ var TweetAction = func(c *cli.Context) {
 
   api.PostTweet(c.Args().First(), nil)
 
-  println("Jolly good tweet!", c.Args().First())
+  println(chalk.Green.Color("Jolly good tweet!"), "\"" + c.Args().First() + "\"")
 }
 
 var LoginAction = func(c *cli.Context) {
@@ -62,34 +67,38 @@ var LoginAction = func(c *cli.Context) {
 
   line.SetCtrlCAborts(true)
 
-  if consumerKey, err := line.Prompt("What is consumer key? "); err == nil {
+  if consumerKey, err := line.Prompt(chalk.Magenta.Color("What is your consumer key? ")); err == nil {
       twitterCreds.ConsumerKey = consumerKey
   } else if err == liner.ErrPromptAborted {
-      println("Aborted")
+      println(chalk.Magenta.Color("Aborted"))
+      return
   } else {
       println("Error reading line: ", err)
   }
 
-  if consumerSecret, err := line.Prompt("What is your consumer secret? "); err == nil {
+  if consumerSecret, err := line.Prompt(chalk.Magenta.Color("What is your consumer secret? ")); err == nil {
       twitterCreds.ConsumerSecret = consumerSecret
   } else if err == liner.ErrPromptAborted {
-      println("Aborted")
+      println(chalk.Magenta.Color("Aborted"))
+      return
   } else {
       println("Error reading line: ", err)
   }
 
-  if userToken, err := line.Prompt("What is your user token? "); err == nil {
+  if userToken, err := line.Prompt(chalk.Magenta.Color("What is your user token? ")); err == nil {
       twitterCreds.UserToken = userToken
   } else if err == liner.ErrPromptAborted {
-      println("Aborted")
+      println(chalk.Magenta.Color("Aborted"))
+      return
   } else {
       println("Error reading line: ", err)
   }
 
-  if userSecret, err := line.Prompt("What is your user secret? "); err == nil {
+  if userSecret, err := line.Prompt(chalk.Magenta.Color("What is your user secret? ")); err == nil {
       twitterCreds.UserSecret = userSecret
   } else if err == liner.ErrPromptAborted {
-      println("Aborted")
+      println(chalk.Magenta.Color("Aborted"))
+      return
   } else {
       println("Error reading line: ", err)
   }
@@ -104,7 +113,7 @@ var LoginAction = func(c *cli.Context) {
       panic(err)
   }
 
-  println("Logged in successfully!")
+  println(chalk.Green.Color("Logged in successfully!"))
 }
 
 var LogoutAction = func(c *cli.Context) {
